@@ -1,5 +1,6 @@
 package se331.lab.rest.controller;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import java.util.List;
 @Controller
 public class EventController {
     List<Event> eventList;
+
 
     @PostConstruct
     public void init() {
@@ -99,15 +101,16 @@ public class EventController {
         page = page == null?1:page;
         Integer firstIndex = (page-1)*perPage;
         List<Event> output = new ArrayList<>();
-
+        HttpHeaders responseHeader = new HttpHeaders();
+        responseHeader.set("x-total-count", String.valueOf(eventList.size()));
         try{
             for (int i = firstIndex; i<firstIndex+ perPage; i++){
                 output.add(eventList.get(i));
             }
+            return new ResponseEntity<>(output, responseHeader, HttpStatus.OK);
         }catch (IndexOutOfBoundsException err){
-            return ResponseEntity.ok(output);
+            return new ResponseEntity<>(output, responseHeader, HttpStatus.OK);
         }
-        return ResponseEntity.ok(output);
     }
 
     @GetMapping("events/{id}")
